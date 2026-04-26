@@ -1,0 +1,2 @@
+[console_scripts]
+export-openapi-yaml = app.export_openapi_yaml:main

@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "event-reminder"
+version = "0.1.0"
+description = "Birthday and anniversary reminder app with FastAPI and PostgreSQL"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "sqlalchemy>=2.0.35",
+    "psycopg[binary]>=3.2.0",
+    "pydantic-settings>=2.5.2",
+    "twilio>=9.0.0",
+    "PyYAML>=6.0.0",
+    "python-jose[cryptography]>=3.3.0",
+    "python-multipart>=0.0.9",
+]
+
+[project.scripts]
+export-openapi-yaml = "app.export_openapi_yaml:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]

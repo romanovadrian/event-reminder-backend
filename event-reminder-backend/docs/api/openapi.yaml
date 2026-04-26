@@ -1,0 +1,754 @@
+openapi: 3.1.0
+info:
+  title: Event Reminder API
+  version: 0.1.0
+paths:
+  /health:
+    get:
+      summary: Health
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+                title: Response Health Health Get
+  /auth/register:
+    post:
+      summary: Register
+      operationId: register_auth_register_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRead'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/login:
+    post:
+      summary: Login
+      operationId: login_auth_login_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_login_auth_login_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/logout:
+    post:
+      summary: Logout
+      operationId: logout_auth_logout_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutResponse'
+      security:
+      - OAuth2PasswordBearer: []
+  /users:
+    get:
+      summary: List Users
+      operationId: list_users_users_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/UserRead'
+                type: array
+                title: Response List Users Users Get
+      security:
+      - OAuth2PasswordBearer: []
+    post:
+      summary: Create User Admin
+      operationId: create_user_admin_users_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAdminCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRead'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /users/{user_id}:
+    get:
+      summary: Get User
+      operationId: get_user_users__user_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRead'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /reminders:
+    get:
+      summary: List Reminders
+      operationId: list_reminders_reminders_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ReminderRead'
+                type: array
+                title: Response List Reminders Reminders Get
+      security:
+      - OAuth2PasswordBearer: []
+    post:
+      summary: Create Reminder
+      operationId: create_reminder_reminders_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReminderCreate'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderRead'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /reminders/{reminder_id}:
+    get:
+      summary: Get Reminder
+      operationId: get_reminder_reminders__reminder_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: reminder_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Reminder Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderRead'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      summary: Update Reminder
+      operationId: update_reminder_reminders__reminder_id__patch
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: reminder_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Reminder Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReminderUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderRead'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Delete Reminder
+      operationId: delete_reminder_reminders__reminder_id__delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: reminder_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Reminder Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /reminders/{reminder_id}/users:
+    post:
+      summary: Assign User To Reminder
+      operationId: assign_user_to_reminder_reminders__reminder_id__users_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: reminder_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Reminder Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReminderAssignmentCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderAssignmentRead'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Reminder Users
+      operationId: list_reminder_users_reminders__reminder_id__users_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: reminder_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Reminder Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReminderAssignmentRead'
+                title: Response List Reminder Users Reminders  Reminder Id  Users
+                  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /reminders/{reminder_id}/users/{user_id}:
+    delete:
+      summary: Unassign User From Reminder
+      operationId: unassign_user_from_reminder_reminders__reminder_id__users__user_id__delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: reminder_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Reminder Id
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: User Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    Body_login_auth_login_post:
+      properties:
+        grant_type:
+          anyOf:
+          - type: string
+            pattern: ^password$
+          - type: 'null'
+          title: Grant Type
+        username:
+          type: string
+          title: Username
+        password:
+          type: string
+          format: password
+          title: Password
+        scope:
+          type: string
+          title: Scope
+          default: ''
+        client_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Client Id
+        client_secret:
+          anyOf:
+          - type: string
+          - type: 'null'
+          format: password
+          title: Client Secret
+      type: object
+      required:
+      - username
+      - password
+      title: Body_login_auth_login_post
+    EventType:
+      type: string
+      enum:
+      - birthday
+      - anniversary
+      - custom
+      title: EventType
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    LogoutResponse:
+      properties:
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - message
+      title: LogoutResponse
+    ReminderAssignmentCreate:
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          title: User Id
+        notify_time:
+          type: string
+          format: time
+          title: Notify Time
+          default: 09:00:00
+      type: object
+      required:
+      - user_id
+      title: ReminderAssignmentCreate
+    ReminderAssignmentRead:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        reminder_id:
+          type: string
+          format: uuid
+          title: Reminder Id
+        user_id:
+          type: string
+          format: uuid
+          title: User Id
+        notify_time:
+          type: string
+          format: time
+          title: Notify Time
+        last_notified_on:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Last Notified On
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        user:
+          $ref: '#/components/schemas/UserRead'
+      type: object
+      required:
+      - id
+      - reminder_id
+      - user_id
+      - notify_time
+      - last_notified_on
+      - created_at
+      - user
+      title: ReminderAssignmentRead
+    ReminderCreate:
+      properties:
+        title:
+          type: string
+          maxLength: 160
+          minLength: 1
+          title: Title
+        event_type:
+          $ref: '#/components/schemas/EventType'
+        event_date:
+          type: string
+          format: date
+          title: Event Date
+        remind_days_before:
+          type: integer
+          maximum: 365.0
+          minimum: 0.0
+          title: Remind Days Before
+          default: 0
+        notes:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Notes
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+      type: object
+      required:
+      - title
+      - event_type
+      - event_date
+      title: ReminderCreate
+    ReminderRead:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        title:
+          type: string
+          title: Title
+        event_type:
+          $ref: '#/components/schemas/EventType'
+        event_date:
+          type: string
+          format: date
+          title: Event Date
+        remind_days_before:
+          type: integer
+          title: Remind Days Before
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        is_active:
+          type: boolean
+          title: Is Active
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - title
+      - event_type
+      - event_date
+      - remind_days_before
+      - notes
+      - is_active
+      - created_at
+      - updated_at
+      title: ReminderRead
+    ReminderUpdate:
+      properties:
+        title:
+          anyOf:
+          - type: string
+            maxLength: 160
+            minLength: 1
+          - type: 'null'
+          title: Title
+        event_type:
+          anyOf:
+          - $ref: '#/components/schemas/EventType'
+          - type: 'null'
+        event_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Event Date
+        remind_days_before:
+          anyOf:
+          - type: integer
+            maximum: 365.0
+            minimum: 0.0
+          - type: 'null'
+          title: Remind Days Before
+        notes:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Notes
+        is_active:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Is Active
+      type: object
+      title: ReminderUpdate
+    TokenResponse:
+      properties:
+        access_token:
+          type: string
+          title: Access Token
+        token_type:
+          type: string
+          title: Token Type
+          default: bearer
+      type: object
+      required:
+      - access_token
+      title: TokenResponse
+    UserAdminCreate:
+      properties:
+        full_name:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Full Name
+        email:
+          type: string
+          maxLength: 255
+          minLength: 3
+          title: Email
+        phone_number:
+          type: string
+          maxLength: 24
+          minLength: 8
+          title: Phone Number
+        timezone:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Timezone
+          default: UTC
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+      type: object
+      required:
+      - full_name
+      - email
+      - phone_number
+      title: UserAdminCreate
+    UserCreate:
+      properties:
+        full_name:
+          type: string
+          maxLength: 120
+          minLength: 1
+          title: Full Name
+        email:
+          type: string
+          maxLength: 255
+          minLength: 3
+          title: Email
+        phone_number:
+          type: string
+          maxLength: 24
+          minLength: 8
+          title: Phone Number
+        password:
+          type: string
+          maxLength: 128
+          minLength: 8
+          title: Password
+        timezone:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Timezone
+          default: UTC
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+      type: object
+      required:
+      - full_name
+      - email
+      - phone_number
+      - password
+      title: UserCreate
+    UserRead:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        full_name:
+          type: string
+          title: Full Name
+        email:
+          type: string
+          title: Email
+        phone_number:
+          type: string
+          title: Phone Number
+        timezone:
+          type: string
+          title: Timezone
+        is_active:
+          type: boolean
+          title: Is Active
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - full_name
+      - email
+      - phone_number
+      - timezone
+      - is_active
+      - created_at
+      - updated_at
+      title: UserRead
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/login
