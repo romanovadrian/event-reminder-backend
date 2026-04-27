@@ -1,6 +1,8 @@
 import logging
 import uuid
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime
+from zoneinfo import ZoneInfo
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -10,9 +12,11 @@ from app import crud
 from app.auth.dependencies import get_current_user
 from app.auth.schemas import LogoutResponse, TokenResponse
 from app.auth.security import create_access_token, hash_password, verify_password
+from app.config import settings
 from app.database import Base, engine, get_db
 from app.models import User
 from app.schemas import (
+    NotificationTriggerDebugRead,
     ReminderAssignmentCreate,
     ReminderAssignmentRead,
     UserAdminCreate,
@@ -22,6 +26,7 @@ from app.schemas import (
     UserCreate,
     UserRead,
 )
+from app.services.notifier import send_event_reminder
 from app.services.scheduler import get_poll_interval, scheduler
 
 logging.basicConfig(level=logging.INFO)
@@ -220,3 +225,54 @@ def unassign_user_from_reminder(
     removed = crud.remove_user_assignment(db, reminder_id, user_id)
     if not removed:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reminder assignment not found")
+
+
+@app.post(
+    "/debug/reminder-associations/{association_id}/trigger",
+    response_model=NotificationTriggerDebugRead,
+)
+def trigger_notification_by_association(
+    association_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> NotificationTriggerDebugRead:
+    _ = current_user
+    assignment = crud.get_reminder_assignment(db, association_id)
+    if assignment is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reminder assignment not found")
+
+    reminder = assignment.reminder
+    user = assignment.user
+    if reminder is None or user is None:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Incomplete reminder assignment relation")
+
+    send_event_reminder(reminder, user)
+
+    effective_timezone = user.timezone
+    try:
+        local_now = datetime.now(ZoneInfo(user.timezone))
+    except Exception:
+        effective_timezone = "UTC"
+        local_now = datetime.now(UTC)
+
+    assignment.last_notified_on = local_now.date()
+    db.add(assignment)
+    db.commit()
+    db.refresh(assignment)
+
+    twilio_credentials_present = all(
+        [settings.twilio_account_sid, settings.twilio_auth_token, settings.twilio_from_number]
+    )
+
+    return NotificationTriggerDebugRead(
+        association_id=assignment.id,
+        reminder_id=assignment.reminder_id,
+        user_id=assignment.user_id,
+        notify_time=assignment.notify_time,
+        user_timezone=user.timezone,
+        effective_timezone=effective_timezone,
+        last_notified_on=assignment.last_notified_on,
+        sms_provider=settings.sms_provider,
+        twilio_credentials_present=twilio_credentials_present,
+        triggered_at_utc=datetime.now(UTC),
+    )

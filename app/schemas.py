@@ -122,3 +122,16 @@ class ReminderAssignmentRead(BaseModel):
     last_notified_on: date | None
     created_at: datetime
     user: UserRead
+
+
+class NotificationTriggerDebugRead(BaseModel):
+    association_id: uuid.UUID
+    reminder_id: uuid.UUID
+    user_id: uuid.UUID
+    notify_time: time
+    user_timezone: str
+    effective_timezone: str
+    last_notified_on: date | None
+    sms_provider: str
+    twilio_credentials_present: bool
+    triggered_at_utc: datetime

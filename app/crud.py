@@ -115,6 +115,15 @@ def list_reminder_assignments(db: Session, reminder_id: uuid.UUID) -> list[Remin
     return list(db.execute(stmt).unique().scalars().all())
 
 
+def get_reminder_assignment(db: Session, association_id: uuid.UUID) -> ReminderUser | None:
+    stmt = (
+        select(ReminderUser)
+        .where(ReminderUser.id == association_id)
+        .options(joinedload(ReminderUser.user), joinedload(ReminderUser.reminder))
+    )
+    return db.execute(stmt).unique().scalar_one_or_none()
+
+
 def remove_user_assignment(db: Session, reminder_id: uuid.UUID, user_id: uuid.UUID) -> bool:
     assignment = db.execute(
         select(ReminderUser).where(ReminderUser.reminder_id == reminder_id, ReminderUser.user_id == user_id)
