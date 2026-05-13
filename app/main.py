@@ -29,6 +29,9 @@ from app.schemas import (
 from app.services.notifier import send_event_reminder
 from app.services.scheduler import get_poll_interval, scheduler
 
+from fastapi.middleware.cors import CORSMiddleware
+
+
 logging.basicConfig(level=logging.INFO)
 
 
@@ -58,6 +61,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Event Reminder API", version="0.1.0", lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://event-reminder-frontend-lake.vercel.app"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/health")
