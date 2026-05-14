@@ -93,7 +93,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     if not user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Inactive user")
 
-    access_token = create_access_token(subject=str(user.id))
+    access_token = create_access_token(payload={"sub": str(user.id), "mail": user.email, "full_name": user.full_name})
     return TokenResponse(access_token=access_token)
 
 
