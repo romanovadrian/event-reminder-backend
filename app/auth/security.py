@@ -41,9 +41,9 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return hmac.compare_digest(candidate, expected)
 
 
-def create_access_token(subject: str) -> str:
+def create_access_token(payload: dict) -> str:
     expire = datetime.now(UTC) + timedelta(minutes=settings.jwt_access_token_expire_minutes)
-    payload = {"sub": subject, "exp": expire}
+    payload.update({"exp": expire})
     return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
 
 
