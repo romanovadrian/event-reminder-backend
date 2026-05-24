@@ -7,6 +7,8 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.database import Base
+from app.models import User
+from app.auth.security import create_access_token
 
 
 @pytest.fixture(scope="session")
@@ -56,3 +58,8 @@ def client(db_session: Session, test_engine) -> Generator[TestClient, None, None
         yield test_client
 
     main_module.app.dependency_overrides.clear()
+
+
+def authentication_header(user: User) -> dict[str, str]:
+    token = create_access_token({"sub": str(user.id)})
+    return {"Authorization": f"Bearer {token}"}

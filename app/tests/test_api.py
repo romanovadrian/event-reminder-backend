@@ -1,5 +1,8 @@
-from http import client
+import datetime
 import uuid
+
+from app.tests.conftest import authentication_header
+from app.tests.model_factories import ReminderFactory, ReminderUserFactory, UserFactory
 
 
 def test_auth_register_login_logout_and_protected_routes(client):
@@ -324,3 +327,35 @@ def test_debug_trigger_notification_by_association_id(client, monkeypatch):
     assignment = assignments.json()[0]
     assert assignment["id"] == association_id
     assert assignment["last_notified_on"] is not None
+
+def test_list_reminders_only_returns_assigned_reminders(client, db_session):
+    first_user = UserFactory(email="first_user@example.com").return_object()
+    db_session.add(first_user)
+    db_session.commit()
+
+    first_user_reminder = ReminderFactory(title="First user Reminder", event_date=datetime.date(2030, 1, 1)).return_object()
+    db_session.add(first_user_reminder)
+    db_session.commit()
+    
+    first_user_reminder_user_association = ReminderUserFactory(reminder_id=first_user_reminder.id, user_id=first_user.id).return_object()
+    db_session.add(first_user_reminder_user_association)
+    db_session.commit()
+
+    second_user = UserFactory(email="second_user@example.com").return_object()
+    db_session.add(second_user)
+    db_session.commit()
+
+    second_user_reminder = ReminderFactory(title="Second user Reminder", event_date=datetime.date(2030, 1, 2)).return_object()
+    db_session.add(second_user_reminder)
+    db_session.commit()
+
+    second_user_reminder_user_association = ReminderUserFactory(reminder_id=second_user_reminder.id, user_id=second_user.id).return_object()
+    db_session.add(second_user_reminder_user_association)
+    db_session.commit()
+
+    response = client.get("/reminders", headers=authentication_header(first_user))
+    assert response.status_code == 200
+    reminders = response.json()
+    assert len(reminders) == 1
+    assert reminders[0]["title"] == "First user Reminder"
+    assert reminders[0]["id"] == str(first_user_reminder.id)
