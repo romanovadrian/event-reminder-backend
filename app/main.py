@@ -232,6 +232,13 @@ def unassign_user_from_reminder(
     if reminder is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reminder not found")
 
+    reminder_assignments = crud.list_reminder_assignments(db, reminder_id)
+    if not any(assignment.user_id == user_id for assignment in reminder_assignments):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User assignment not found for this reminder")
+    
+    if len(reminder_assignments) <= 1:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot unassign the last user from a reminder")
+
     removed = crud.remove_user_assignment(db, reminder_id, user_id)
     if not removed:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reminder assignment not found")
