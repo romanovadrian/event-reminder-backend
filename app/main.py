@@ -145,8 +145,7 @@ def create_reminder(
 
 @app.get("/reminders", response_model=list[ReminderRead])
 def list_reminders(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> list[ReminderRead]:
-    _ = current_user
-    return crud.list_reminders(db)
+    return crud.list_reminders_for_user(db, current_user.id)
 
 
 @app.get("/reminders/{reminder_id}", response_model=ReminderRead)

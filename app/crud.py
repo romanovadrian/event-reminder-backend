@@ -49,10 +49,11 @@ def create_reminder(db: Session, payload: ReminderCreate) -> Reminder:
     return reminder
 
 
-def list_reminders(db: Session) -> list[Reminder]:
+def list_reminders_for_user(db: Session, user_id: uuid.UUID) -> list[Reminder]:
     stmt = (
         select(Reminder)
         .options(joinedload(Reminder.user_links).joinedload(ReminderUser.user))
+        .where(ReminderUser.user_id == user_id)
         .order_by(Reminder.event_date.asc())
     )
     return list(db.execute(stmt).unique().scalars().all())
