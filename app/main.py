@@ -36,6 +36,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 def _run_scheduler_tick() -> None:
+    print("Running scheduler tick...")
     scheduler.run_once()
 
 
