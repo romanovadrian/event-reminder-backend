@@ -65,7 +65,7 @@ app = FastAPI(title="Event Reminder API", version="0.1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://event-reminder-frontend-lake.vercel.app", "http://localhost:3000", "http://localhost"],
+    allow_origins=["https://event-reminder-frontend-lake.vercel.app", "http://localhost:3000", "https://localhost"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
